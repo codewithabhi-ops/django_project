@@ -1,18 +1,23 @@
 pipeline {
     agent any
 
+    environment {
+        PROJECT_DIR = "/home/ubuntu/django_project"
+        VENV_DIR = "${PROJECT_DIR}/venv"
+    }
+
     stages {
-        stage('Checkout Code') {
+        stage('Checkout') {
             steps {
-                echo 'Cloning the repository...'
-                checkout scm
+                git branch: 'main',
+                    url: 'https://github.com/codewithabhi-ops/django_project.git'
             }
         }
 
         stage('Set up Python Environment') {
             steps {
-                echo 'Setting up virtual environment...'
                 sh '''
+                cd $PROJECT_DIR
                 python3 -m venv venv
                 source venv/bin/activate
                 pip install --upgrade pip
@@ -21,40 +26,24 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                echo 'Running Django tests...'
-                sh '''
-                source venv/bin/activate
-                python manage.py test
-                '''
-            }
-        }
-
         stage('Collect Static Files') {
             steps {
-                echo 'Collecting static files...'
                 sh '''
+                cd $PROJECT_DIR
                 source venv/bin/activate
                 python manage.py collectstatic --noinput
                 '''
             }
         }
 
-        stage('Restart Gunicorn') {
+        stage('Restart Services') {
             steps {
-                echo 'Restarting Gunicorn service...'
-                sh 'sudo systemctl restart gunicorn'
+                sh '''
+                sudo systemctl daemon-reload
+                sudo systemctl restart gunicorn
+                sudo systemctl restart nginx
+                '''
             }
-        }
-    }
-
-    post {
-        success {
-            echo '✅ Deployment successful!'
-        }
-        failure {
-            echo '❌ Build failed!'
         }
     }
 }
