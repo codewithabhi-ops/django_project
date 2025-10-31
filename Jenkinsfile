@@ -37,15 +37,14 @@ pipeline {
 }
 
 
-        stage('Restart Services') {
-            steps {
-                echo "Restarting Gunicorn and NGINX..."
-                sh '''
-                sudo systemctl daemon-reload
-                sudo systemctl restart gunicorn
-                sudo systemctl restart nginx
-                '''
-            }
-        }
+       stage('Restart Services') {
+    steps {
+        echo 'Restarting Gunicorn and NGINX on remote Django server...'
+        sh '''
+        ssh -o StrictHostKeyChecking=no jenkins@52.63.0.218 "sudo systemctl restart gunicorn && sudo systemctl restart nginx"
+        '''
+    }
+}
+
     }
 }
