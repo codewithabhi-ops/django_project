@@ -27,15 +27,15 @@ pipeline {
 
 
         stage('Collect Static Files') {
-            steps {
-                echo "Collecting static files..."
-                sh '''
-                cd $PROJECT_DIR
-                source venv/bin/activate
-                python manage.py collectstatic --noinput
-                '''
-            }
-        }
+    steps {
+        echo "Collecting static files..."
+        sh '''
+            cd ${PROJECT_DIR}
+            bash -c "source venv/bin/activate && python manage.py collectstatic --noinput"
+        '''
+    }
+}
+
 
         stage('Restart Services') {
             steps {
