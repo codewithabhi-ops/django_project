@@ -14,18 +14,17 @@ pipeline {
             }
         }
 
-        stage('Set up Python Environment') {
-            steps {
-                echo "Creating virtual environment and installing dependencies..."
-                sh '''
-                cd $PROJECT_DIR
-                python3 -m venv venv
-                source venv/bin/activate
-                pip install --upgrade pip
-                pip install -r requirements.txt
-                '''
-            }
-        }
+       stage('Set up Python Environment') {
+    steps {
+        echo "Creating virtual environment and installing dependencies..."
+        sh '''
+            cd ${PROJECT_DIR}
+            python3 -m venv venv
+            bash -c "source venv/bin/activate && pip install -r requirements.txt"
+        '''
+    }
+}
+
 
         stage('Collect Static Files') {
             steps {
