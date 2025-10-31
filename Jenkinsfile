@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     environment {
-        PROJECT_DIR = "/home/ubuntu/django_project"
+        PROJECT_DIR = "${WORKSPACE}"
         VENV_DIR = "${PROJECT_DIR}/venv"
     }
 
@@ -15,21 +15,21 @@ pipeline {
         }
 
         stage('Set up Python Environment') {
-    steps {
-        echo "Creating virtual environment and installing dependencies..."
-        sh '''
-        cd $PROJECT_DIR
-        python3 -m venv venv
-        source venv/bin/activate
-        pip install --upgrade pip
-        pip install -r requirements.txt
-        '''
-    }
-}
-
+            steps {
+                echo "Creating virtual environment and installing dependencies..."
+                sh '''
+                cd $PROJECT_DIR
+                python3 -m venv venv
+                source venv/bin/activate
+                pip install --upgrade pip
+                pip install -r requirements.txt
+                '''
+            }
+        }
 
         stage('Collect Static Files') {
             steps {
+                echo "Collecting static files..."
                 sh '''
                 cd $PROJECT_DIR
                 source venv/bin/activate
@@ -40,6 +40,7 @@ pipeline {
 
         stage('Restart Services') {
             steps {
+                echo "Restarting Gunicorn and NGINX..."
                 sh '''
                 sudo systemctl daemon-reload
                 sudo systemctl restart gunicorn
